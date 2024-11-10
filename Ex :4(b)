@@ -1,0 +1,127 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX 100
+typedef struct Stack {
+    char items[MAX];
+    int top;
+} Stack;
+
+void initStack(Stack* stack) {
+    stack->top = -1;
+}
+
+int isEmpty(Stack* stack) {
+    return stack->top == -1;
+}
+
+int isFull(Stack* stack) {
+    return stack->top == MAX - 1;
+}
+void push(Stack* stack, char value) {
+    if (isFull(stack)) {
+        printf("Stack overflow\n");
+        return;
+    }
+    stack->items[++stack->top] = value;
+}
+char pop(Stack* stack) {
+    if (isEmpty(stack)) {
+        printf("Stack underflow\n");
+        return '\0';
+    }
+    return stack->items[stack->top--];
+}
+int isMatchingPair(char open, char close) {
+    return (open == '(' && close == ')') ||
+           (open == '{' && close == '}') ||
+           (open == '[' && close == ']');
+}
+
+int checkSyntax(char* code) {
+    Stack stack;
+    initStack(&stack);
+
+    for (int i = 0; i < strlen(code); i++) {
+        char ch = code[i];
+
+        if (ch == '(' || ch == '{' || ch == '[') {
+            push(&stack, ch);
+        }
+        else if (ch == ')' || ch == '}' || ch == ']') {
+            if (isEmpty(&stack)) {
+                printf("Syntax error: unmatched closing delimiter '%c'\n", ch);
+                return 0;
+            }
+            char top = pop(&stack);
+            if (!isMatchingPair(top, ch)) {
+                printf("Syntax error: unmatched closing delimiter '%c'\n", ch);
+                return 0;
+            }
+        }
+    }
+
+    if (!isEmpty(&stack)) {
+        printf("Syntax error: unmatched opening delimiter\n");
+        return 0;
+    }
+
+    printf("No syntax errors: delimiters are balanced.\n");
+    return 1;
+}
+
+void reverseString(char* str) {
+    Stack stack;
+    initStack(&stack);
+
+    for (int i = 0; i < strlen(str); i++) {
+        push(&stack, str[i]);
+    }
+
+    for (int i = 0; i < strlen(str); i++) {
+        str[i] = pop(&stack);
+    }
+}
+
+int main() {
+    int choice;
+    char input[MAX];
+
+    do {
+        printf("\nMenu:\n");
+        printf("1. Check syntax for balanced delimiters\n");
+        printf("2. Reverse a string\n");
+        printf("3. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        getchar();
+
+        switch (choice) {
+            case 1:
+                printf("Enter code snippet to check for balanced delimiters: ");
+                fgets(input, MAX, stdin);
+                input[strcspn(input, "\n")] = '\0'; // Remove newline character
+                checkSyntax(input);
+                break;
+
+            case 2:
+                printf("Enter a string to reverse: ");
+                fgets(input, MAX, stdin);
+                input[strcspn(input, "\n")] = '\0'; // Remove newline character
+                reverseString(input);
+                printf("Reversed string: %s\n", input);
+                break;
+
+            case 3:
+                printf("Exiting the program.\n");
+                break;
+
+            default:
+                printf("Invalid choice. Please try again.\n");
+                break;
+        }
+    } while (choice != 3);
+
+    return 0;
+}
