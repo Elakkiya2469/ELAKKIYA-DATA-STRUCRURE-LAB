@@ -1,0 +1,124 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define TABLE_SIZE 10 
+
+typedef struct Product {
+    int productID;
+    char productName[50];
+    struct Product* next; 
+} Product;
+Product* hashTable[TABLE_SIZE]
+int hashFunction(int productID) {
+    return productID % TABLE_SIZE;
+}
+Product* createProduct(int productID, const char* productName) {
+    Product* newProduct = (Product*)malloc(sizeof(Product));
+    if (newProduct == NULL) {
+        printf("Memory allocation failed.\n");
+        exit(1);
+    }
+    newProduct->productID = productID;
+    strcpy(newProduct->productName, productName);
+    newProduct->next = NULL;
+    return newProduct;
+}
+void insertProduct(int productID, const char* productName) {
+    int index = hashFunction(productID);
+    
+    
+    Product* newProduct = createProduct(productID, productName);
+    
+    newProduct->next = hashTable[index];
+    hashTable[index] = newProduct;
+}
+Product* searchProduct(int productID) {
+    int index = hashFunction(productID);
+    
+    Product* current = hashTable[index];
+ 
+    while (current != NULL) {
+        if (current->productID == productID) {
+            return current; 
+        }
+        current = current->next;
+    }
+    
+    return NULL; 
+}
+void deleteProduct(int productID) {
+    int index = hashFunction(productID);
+    
+    Product* current = hashTable[index];
+    Product* prev = NULL;
+   
+    while (current != NULL && current->productID != productID) {
+        prev = current;
+        current = current->next;
+   }
+    if (current == NULL) {
+        printf("Product ID %d not found.\n", productID);
+        return;
+    }
+    if (prev == NULL) {
+        hashTable[index] = current->next;
+    } else {
+        prev->next = current->next;
+    }
+    
+    free(current);  
+    printf("Product ID %d deleted.\n", productID);
+}
+
+
+void displayProducts() {
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        Product* current = hashTable[i];
+        if (current != NULL) {
+            printf("Index %d: ", i);
+            while (current != NULL) {
+                printf("ID: %d, Name: %s -> ", current->productID, current->productName);
+                current = current->next;
+            }
+            printf("NULL\n");
+        }
+    }
+}
+
+int main() {
+   
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        hashTable[i] = NULL;
+    }
+
+    // Insert products into the hash table
+    insertProduct(101, "Laptop");
+    insertProduct(205, "Smartphone");
+    insertProduct(305, "Tablet");
+    insertProduct(402, "Headphones");
+    insertProduct(501, "Smartwatch");
+
+   
+    printf("Product list in the hash table:\n");
+    displayProducts();
+
+   
+    int searchID = 205;
+    Product* product = searchProduct(searchID);
+    if (product != NULL) {
+        printf("Found product with ID %d: %s\n", product->productID, product->productName);
+    } else {
+        printf("Product with ID %d not found.\n", searchID);
+    }
+
+
+    int deleteID = 305;
+    deleteProduct(deleteID);
+    
+    
+    printf("\nUpdated product list:\n");
+    displayProducts();
+
+    return 0;
+}
