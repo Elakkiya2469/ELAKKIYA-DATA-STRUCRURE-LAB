@@ -1,0 +1,77 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+
+void inputUsernames(char** usernames, int count) {
+    for (int i = 0; i < count; i++) {
+        usernames[i] = (char*)malloc(50 * sizeof(char));  // Allocate memory for each username
+        if (usernames[i] == NULL) {
+            printf("Memory allocation failed.\n");
+            exit(1);
+        }
+        printf("Enter username for user %d: ", i + 1);
+        scanf("%s", usernames[i]);
+    }
+}
+
+void sortUsernames(char** usernames, int count) {
+    for (int i = 0; i < count - 1; i++) {
+        for (int j = 0; j < count - i - 1; j++) {
+            if (strcmp(usernames[j], usernames[j + 1]) > 0) {
+                char* temp = usernames[j];
+                usernames[j] = usernames[j + 1];
+                usernames[j + 1] = temp;
+            }
+        }
+    }
+}
+int binarySearch(char** usernames, int count, char* target) {
+    int left = 0;
+    int right = count - 1;
+
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        int comparison = strcmp(usernames[mid], target);
+
+        if (comparison == 0)
+            return mid;  
+        else if (comparison < 0)
+            left = mid + 1;
+        else
+            right = mid - 1;
+    }
+    return -1; 
+}
+void freeUsernames(char** usernames, int count) {
+    for (int i = 0; i < count; i++) {
+        free(usernames[i]);
+    }
+    free(usernames);
+}
+
+int main() {
+    int numUsers;
+    char targetUsername[50];
+
+    printf("Enter the number of users: ");
+    scanf("%d", &numUsers);
+
+    char** usernames = (char**)malloc(numUsers * sizeof(char*));
+    if (usernames == NULL) {
+        printf("Memory allocation failed.\n");
+        return 1;
+    }
+    inputUsernames(usernames, numUsers);
+    sortUsernames(usernames, numUsers);
+    printf("Enter the username to search: ");
+    scanf("%s", targetUsername);
+    int result = binarySearch(usernames, numUsers, targetUsername);
+    if (result != -1)
+        printf("Username '%s' found at position %d.\n", targetUsername, result + 1);
+    else
+        printf("Username '%s' not found.\n", targetUsername);
+    freeUsernames(usernames, numUsers);
+
+    return 0;
+}
