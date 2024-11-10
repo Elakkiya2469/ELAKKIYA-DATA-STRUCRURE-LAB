@@ -1,0 +1,78 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Node {
+    char data;
+    struct Node* next;
+} Node;
+
+typedef struct Stack {
+    Node* top;
+} Stack;
+void initializeStack(Stack* stack) {
+    stack->top = NULL;
+}
+int isEmpty(Stack* stack) {
+    return stack->top == NULL;
+}
+void push(Stack* stack, char data) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    if (!newNode) {
+        printf("Memory allocation error.\n");
+        return;
+    }
+    newNode->data = data;
+    newNode->next = stack->top;
+    stack->top = newNode;
+}
+char pop(Stack* stack) {
+    if (isEmpty(stack)) {
+        return '\0';
+    }
+    Node* temp = stack->top;
+    char data = temp->data;
+    stack->top = stack->top->next;
+    free(temp);
+    return data;
+}
+int isMatchingPair(char open, char close) {
+    return (open == '(' && close == ')') ||
+           (open == '{' && close == '}') ||
+           (open == '[' && close == ']');
+}
+int validateSyntax(const char* expression) {
+    Stack stack;
+    initializeStack(&stack);
+
+    for (int i = 0; expression[i] != '\0'; i++) {
+        char current = expression[i]
+        if (current == '(' || current == '{' || current == '[') {
+            push(&stack, current);
+       }
+        else if (current == ')' || current == '}' || current == ']') {
+            if (isEmpty(&stack)) {
+                return 0;  // Unmatched closing symbol
+            }
+            char top = pop(&stack);
+            if (!isMatchingPair(top, current)) {
+                return 0;  // Mismatched pair
+            }
+        }
+    }
+    return isEmpty(&stack);
+}
+
+int main() {
+    char expression[100];
+
+    printf("Enter an expression to check: ");
+    scanf("%s", expression);
+
+    if (validateSyntax(expression)) {
+        printf("The expression is balanced.\n");
+    } else {
+        printf("The expression is not balanced.\n");
+    }
+
+    return 0;
+}
