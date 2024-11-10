@@ -1,0 +1,73 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+#define INF INT_MAX  
+int minKey(int key[], int mstSet[], int numOffices) {
+    int min = INF, minIndex;
+    
+    for (int v = 0; v < numOffices; v++) {
+        if (mstSet[v] == 0 && key[v] < min) {
+            min = key[v];
+            minIndex = v;
+        }
+    }
+    
+    return minIndex;
+}
+void printMST(int parent[], int graph[][5], int numOffices) {
+    printf("Edge \tWeight\n");
+    for (int i = 1; i < numOffices; i++) {
+        printf("%d - %d \t%d\n", parent[i], i, graph[i][parent[i]]);
+    }
+}
+void primMST(int graph[][5], int numOffices) {
+    int parent[numOffices]; 
+    int key[numOffices];     
+    int mstSet[numOffices]; 
+
+    
+    for (int i = 0; i < numOffices; i++) {
+        key[i] = INF;
+        mstSet[i] = 0;
+    }
+
+    key[0] = 0;  
+    parent[0] = -1;
+
+    // Find the MST
+    for (int count = 0; count < numOffices - 1; count++) {
+       
+        int u = minKey(key, mstSet, numOffices);
+
+        
+        mstSet[u] = 1;
+        for (int v = 0; v < numOffices; v++) {
+            
+            if (graph[u][v] != INF && mstSet[v] == 0 && graph[u][v] < key[v]) {
+                key[v] = graph[u][v];
+                parent[v] = u;
+            }
+        }
+    }
+
+  
+    printMST(parent, graph, numOffices);
+}
+
+int main() {
+    int numOffices = 5;
+    int graph[5][5] = {
+        {0, 2, 0, 6, 0},
+        {2, 0, 3, 8, 5},
+        {0, 3, 0, 0, 7},
+        {6, 8, 0, 0, 9},
+        {0, 5, 7, 9, 0}
+    };
+
+    
+    printf("Minimum Spanning Tree (MST) for the building network:\n");
+    primMST(graph, numOffices);
+
+    return 0;
+}
