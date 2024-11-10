@@ -1,0 +1,78 @@
+
+#include <stdio.h>
+
+#define MAX_SIZE 100
+
+typedef struct {
+    int grades[MAX_SIZE];
+    int size;
+} GradeList;
+void initializeList(GradeList *list) {
+    list->size = 0;
+}
+void addGrade(GradeList *list, int grade) {
+    if (list->size < MAX_SIZE) {
+        list->grades[list->size] = grade;
+        list->size++;
+    } else {
+        printf("Error: Grade list is full.\n");
+    }
+}
+float calculateAverage(GradeList *list) {
+    if (list->size == 0) {
+        printf("No grades to calculate average.\n");
+        return 0;
+    }
+    int sum = 0;
+    for (int i = 0; i < list->size; i++) {
+        sum += list->grades[i];
+    }
+    return (float)sum / list->size;
+}
+void displayGrades(GradeList *list) {
+    if (list->size == 0) {
+        printf("No grades to display.\n");
+        return;
+    }
+    printf("Grades: ");
+    for (int i = 0; i < list->size; i++) {
+        printf("%d ", list->grades[i]);
+    }
+    printf("\n");
+}
+
+int main() {
+    GradeList gradeList;
+    initializeList(&gradeList);
+
+    int choice, grade;
+    while (1) {
+        printf("\nGrade Management System\n");
+        printf("1. Add Grade\n");
+        printf("2. Calculate Average\n");
+        printf("3. Display All Grades\n");
+        printf("4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                printf("Enter grade to add: ");
+                scanf("%d", &grade);
+                addGrade(&gradeList, grade);
+                break;
+            case 2:
+                printf("Average Grade: %.2f\n", calculateAverage(&gradeList));
+                break;
+            case 3:
+                displayGrades(&gradeList);
+                break;
+            case 4:
+                printf("Exiting...\n");
+                return 0;
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    }
+    return 0;
+}
