@@ -1,0 +1,53 @@
+
+#include <stdio.h>
+#include <stdlib.h>
+
+void inputAges(int* ages, int count) {
+    for (int i = 0; i < count; i++) {
+        printf("Enter age for participant %d: ", i + 1);
+        scanf("%d", ages + i);
+    }
+}
+
+void sortAges(int* ages, int count) {
+    for (int i = 0; i < count - 1; i++) {
+        for (int j = i + 1; j < count; j++) {
+            if (*(ages + i) > *(ages + j)) {
+                // Swap ages[i] and ages[j]
+                int temp = *(ages + i);
+                *(ages + i) = *(ages + j);
+                *(ages + j) = temp;
+            }
+        }
+    }
+}
+
+void displayAges(int* ages, int count) {
+    printf("Sorted ages from youngest to oldest:\n");
+    for (int i = 0; i < count; i++) {
+        printf("%d ", *(ages + i));
+    }
+    printf("\n");
+}
+
+int main() {
+    int numParticipants;
+
+    printf("Enter the number of participants: ");
+    scanf("%d", &numParticipants)
+    int* ages = (int*)malloc(numParticipants * sizeof(int));
+    if (ages == NULL) {
+        printf("Memory allocation failed.\n");
+        return 1;
+    }
+
+    
+    inputAges(ages, numParticipants);
+
+    
+    sortAges(ages, numParticipants);
+    displayAges(ages, numParticipants);
+    free(ages);
+
+    return 0;
+}
