@@ -1,0 +1,153 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+#define ROWS 5
+#define COLS 5
+
+int directions[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+typedef struct {
+    int x, y;
+    int g, h, f; 
+    struct Node* parent;
+} Node;
+
+Node* createNode(int x, int y, int g, int h, Node* parent) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    newNode->x = x;
+    newNode->y = y;
+    newNode->g = g;
+    newNode->h = h;
+    newNode->f = g + h;
+    newNode->parent = parent;
+    return newNode;
+}
+
+
+int calculateHeuristic(int x, int y, int goalX, int goalY) {
+    return abs(x - goalX) + abs(y - goalY);  
+}
+
+int aStar(int** grid, int startX, int startY, int goalX, int goalY) {
+    Node* openList[ROWS * COLS];  
+    Node* closedList[ROWS * COLS]; 
+    int openListSize = 0;
+    int closedListSize = 0;
+    Node* startNode = createNode(startX, startY, 0, calculateHeuristic(startX, startY, goalX, goalY), NULL);
+    openList[openListSize++] = startNode;
+
+    while (openListSize > 0) {
+     
+        int lowestIndex = 0;
+        for (int i = 1; i < openListSize; i++) {
+            if (openList[i]->f < openList[lowestIndex]->f) {
+                lowestIndex = i;
+            }
+        }
+
+        Node* current = openList[lowestIndex];
+
+      
+        if (current->x == goalX && current->y == goalY) {
+         
+            Node* pathNode = current;
+            while (pathNode != NULL) {
+                printf("(%d, %d) <- ", pathNode->x, pathNode->y);
+                pathNode = pathNode->parent;
+            }
+            printf("Start\n");
+            return 1;
+        }
+
+        
+        openList[lowestIndex] = openList[openListSize - 1];
+        openListSize--;
+
+        closedList[closedListSize++] = current;
+
+       
+        for (int i = 0; i < 4; i++) {
+            int newX = current->x + directions[i][0];
+            int newY = current->y + directions[i][1];
+
+            
+            if (newX >= 0 && newY >= 0 && newX < ROWS && newY < COLS && grid[newX][newY] == 0) {
+                
+                int skip = 0;
+                for (int j = 0; j < closedListSize; j++) {
+                    if (closedList[j]->x == newX && closedList[j]->y == newY) {
+                        skip = 1;
+                        break;
+                    }
+                }
+
+                if (skip) continue;
+
+               
+                int g = current->g + 1;
+                int h = calculateHeuristic(newX, newY, goalX, goalY);
+                Node* neighbor = createNode(newX, newY, g, h, current);
+
+              
+                int inOpenList = 0;
+                for (int j = 0; j < openListSize; j++) {
+                    if (openList[j]->x == newX && openList[j]->y == newY) {
+                        inOpenList = 1;
+                        break;
+                    }
+                }
+
+                if (!inOpenList) {
+                    openList[openListSize++] = neighbor;
+                } else {
+                    free(neighbor);
+                }
+            }
+        }
+    }
+
+    return 0; 
+}
+
+int main() {
+  
+    int** grid = (int**)malloc(ROWS * sizeof(int*));
+    for (int i = 0; i < ROWS; i++) {
+        grid[i] = (int*)malloc(COLS * sizeof(int));
+    }
+
+    
+    int exampleGrid[5][5] = {
+        {0, 0, 0, 1, 0},
+        {0, 1, 0, 1, 0},
+        {0, 1, 0, 0, 0},
+        {0, 0, 0, 1, 0},
+        {1, 1, 0, 0, 0}
+    };
+
+    
+    for (int i = 0; i < ROWS; i++) {
+        for (int j = 0; j < COLS; j++) {
+            grid[i][j] = exampleGrid[i][j];
+        }
+    }
+
+   
+    int startX = 0, startY = 0;
+    int goalX = 4, goalY = 4;
+
+    printf("Finding path from (%d, %d) to (%d, %d):\n", startX, startY, goalX, goalY);
+
+ 
+    if (!aStar(grid, startX, startY, goalX, goalY)) {
+        printf("No path found.\n");
+    }
+
+
+    for (int i = 0; i < ROWS; i++) {
+        free(grid[i]);
+    }
+    free(grid);
+
+    return 0;
+}
